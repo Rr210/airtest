@@ -1,0 +1,52 @@
+# -*- encoding=utf8 -*-
+__author__ = "R博主"
+
+from airtest.core.api import *
+
+auto_setup(__file__)
+from poco.drivers.android.uiautomation import AndroidUiautomationPoco
+poco = AndroidUiautomationPoco(use_airtest_input=True, screenshot_each_action=False)#poco定位元素的位置
+
+#筛选对话框
+items_elements=poco(name='com.tencent.mm:id/b4r').offspring(name='com.tencent.mm:id/e3x')
+
+names=[]
+for item in items_elements:
+    name=item.get_text()#选择文本
+    #print(name)
+    names.append(name)
+    
+print(names)
+
+def get_red_pakets():#定义
+    msg_elements_list=poco(name='android.widget.RelativeLayout').children()
+    
+    msg_lists = []
+    for item in msg_elements_list:
+        msg_lists.insert(0,item)
+    for msg in msg_lists:
+        red_key_elements=msg.offspring(name='com.tencent.mm:id/r8')
+        not_red_key=msg.offspring(name='com.tencent.mm:id/r2')
+        if red_key_elements:
+            if not_red_key.exists() and not_red_key.get.text()=='已领取':
+                print('已经抢过')
+                continue
+            else:
+                print('有新红包')
+                msg.click()
+                kai_elements=poco(name='com.tencent.mm:id/den')
+                sleep(0.2)
+                if kai_elements.exists():
+                    kai_elements.click()
+                keyevent('BACK')
+        else:
+            print('没有红包！')
+#进入对话框
+target='1'
+if target in names:
+    index=names.index(target)
+    items_elements[index].click()
+    
+    while True:#循环
+        get_red_pakets()
+        sleep(0.9)
